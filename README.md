@@ -29,7 +29,7 @@ $ docker-compose -f docker-compose.yml exec app python manage.py collectstatic -
 #Djangoの管理者ユーザの登録
 $ docker-compose -f docker-compose.yml exec app python manage.py createsuperuser
 
-#各コンテナを一時停止
+#各コンテナを開始
 $ docker-compose -f docker-compose.yml start
 
 #各コンテナを停止
