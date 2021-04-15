@@ -4,7 +4,7 @@ IoTデバイスをサーバに接続するためのAPIです<br>
 また、Docker上で稼働するため、様々な環境やサーバでお使いになれます。<br>
 プロトコルはHTTP使うので、煩雑な設定や証明書が必要ありません。また、IoTデバイスのコードも簡潔になります。<br>
 なお、セキュリティを担保したい場合は、IoTデバイス上でデータを暗号化し、お手元で復号する方法があります。<br>
-フレームワーク自体の使い方やURLの解説は→https://github.com/spadr/IoT_Frame_dev
+API自体の使い方やURLの解説は→https://github.com/spadr/IoT_Frame_dev
 <br>
 # Usage
 ```
