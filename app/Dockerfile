@@ -7,8 +7,7 @@ ENV PYTHONUNBUFFERED 1
 
 # create Django directory for the app user
 ARG UID=1000
-RUN groupadd app
-RUN useradd -m -u ${UID} app -g app
+RUN groupadd app && useradd -m -u ${UID} app -g app
 ENV APP_HOME=/usr/src/app
 RUN mkdir -p $APP_HOME && \
     mkdir $APP_HOME/staticfiles && \
