@@ -8,8 +8,11 @@ API自体の使い方やURLの解説は→https://github.com/spadr/IoT_Frame_dev
 <br>
 # Usage
 ```
+#ファイルのパーミッションを変更
+$ chmod +x app/entrypoint.sh
+
 #イメージをビルドし、各コンテナを起動
-$ docker-compose -f docker-compose.yml up -d --build
+$ sudo docker-compose -f docker-compose.yml up -d --build
 
 #稼働状況を確認
 $ docker-compose -f docker-compose.yml ps -a
