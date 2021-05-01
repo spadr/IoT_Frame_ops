@@ -8,7 +8,7 @@ API自体の使い方やURLの解説は→https://github.com/spadr/IoT_Frame_dev
 <br>
 # Usage
 ```
-#ファイルのパーミッションを変更
+#ファイルに実行権限付与
 $ chmod +x app/entrypoint.sh
 
 #イメージをビルドし、各コンテナを起動
