@@ -1,6 +1,7 @@
 version: "3.7"
 
 services:
+
   app:
     build:
       context: ./app
@@ -14,20 +15,22 @@ services:
     expose:
       - 8000
     env_file:
-      - ./.env.example
+      - ./.env
     depends_on:
       - db
     networks:
       - front
       - back
+  
   db:
     image: postgres:12.0-alpine
     volumes:
       - db_data:/var/lib/postgresql/data/
     env_file:
-      - ./.env.example
+      - ./.env
     networks:
       - back
+  
   nginx:
     build:
       context: ./nginx
@@ -42,11 +45,13 @@ services:
     networks:
       - front
 
+
 volumes:
   db_data:
   static_volume:
   media_volume:
 
+    
 networks:
   front:
     external: false
