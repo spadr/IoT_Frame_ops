@@ -23,9 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
-
 # SECURITY WARNING: don't run with debug turned on in production!
+
+def is_true(val):
+    return False if val == 'False' else True
+
 DEBUG = int(os.environ.get("DEBUG", default=0))
 SECRET_KEY = os.environ.get("SECRET_KEY", "foo")
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost").split(" ")
@@ -34,8 +36,8 @@ EMAIL_ADDRESS = os.environ.get('EMAIL_ADDRESS')
 EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = os.environ.get('EMAIL_PORT', default='587')
-
+EMAIL_PORT = os.environ.get('EMAIL_PORT')
+EMAIL_USE_TLS = is_true(os.environ.get('EMAIL_USE_TLS'))
 
 # Application definition
 
@@ -134,8 +136,6 @@ USE_TZ = True
 
 
 LOGIN_URL = 'login'
-
-EMAIL_USE_TLS = True
 
 ACTIVATION_TIMEOUT_SECONDS = 60*60*24
 
