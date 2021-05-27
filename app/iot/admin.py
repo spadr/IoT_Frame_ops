@@ -1,5 +1,6 @@
+from iot.models import IotModel
 from django.contrib import admin
-from .views.models import IotModel
+from .models import IotModel
 
 # Register your models here.
 admin.site.register(IotModel)
