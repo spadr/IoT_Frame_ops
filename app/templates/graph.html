@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block header %}
+
+<div class="alert alert-primary" role="alert">
+  <h3>Mypage[{{ username }}]</h3>
+</div>
+
+{% endblock header %}
+
+{% block content %}
+
+<div class="container">
+  <div class="alert alert-success" role="alert">
+    <a href="{% url 'read' %}" role="button" class="btn btn-success" aria-pressed="true">TABLE</a>
+    <a href="{% url 'graph' %}" role="button" class="btn btn-primary" aria-pressed="true">UPDATE</a>
+    <a href="{% url 'dl' %}" role="button" class="btn btn-warning" aria-pressed="true">DOWNLOAD</a>
+    <a href="{% url 'logout' %}" class="btn btn-secondary" role="button" aria-pressed="true">LOGOUT</a>
+    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-pressed="true">DELETE</button>
+    <br>
+    <hr>
+    {% autoescape off %}
+    {{ plot_gantt }}
+    {% endautoescape %}
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">確認</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        本当に削除してよろしいですか。
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <a href="{% url 'delete' %}" role="button" class="btn btn-danger" aria-pressed="true">DELETE</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
