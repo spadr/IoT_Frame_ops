@@ -1,16 +1,16 @@
 from django.contrib import admin
 from django.urls import path
-from . import views
+from .views import signupfunc, graphfunc , loginfunc, logoutfunc, readfunc, completefunc, datafunc, memefunc, dlfunc, deletefunc
 
 urlpatterns = [
-    path('signup/', views.make_user.signupfunc, name='signup'),
-    path('login/', views.sign_user.loginfunc, name='login'),
-    path('logout/', views.sign_user.logoutfunc, name='logout'),
-    path('read/', views.view_page.readfunc, name='read'),
-    path('graph/', views.view_page.graphfunc, name='graph'),
-    path('complete/<token>/', views.make_user.completefunc, name='complete'),
-    path('data/<contents>/', views.create_data.datafunc, name='data'),
-    path('', views.view_page.memefunc, name='meme'),
-    path('dl/', views.manipulate_data.dlfunc, name='dl'),
-    path('delete/', views.manipulate_data.deletefunc, name='delete'),
+    path('signup/', signupfunc, name='signup'),
+    path('login/', loginfunc, name='login'),
+    path('logout/', logoutfunc, name='logout'),
+    path('read/', readfunc, name='read'),
+    path('graph/', graphfunc, name='graph'),
+    path('complete/<token>/', completefunc, name='complete'),
+    path('data/<contents>/', datafunc, name='data'),
+    path('', memefunc, name='meme'),
+    path('dl/', dlfunc, name='dl'),
+    path('delete/', deletefunc, name='delete'),
 ]
