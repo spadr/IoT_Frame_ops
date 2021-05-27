@@ -4,7 +4,9 @@ import time
 
 #sin,cos.tan波を送信するテスト用コード
 
-url    = "http://127.0.0.1/data/[YourAccessKey],Senser00"
+key = "YourAccessKey"
+
+url    = "http://localhost/data/"+ key +",Senser00"
 N      = 256       # サンプル数
 dt     = 0.01      # サンプリング間隔
 f1, f2 = 10, 20    # 周波数
@@ -20,4 +22,4 @@ for i in range(N):
     requests.get(url + "1," + str(sin[i]))
     requests.get(url + "2," + str(cos[i]))
     requests.get(url + "3," + str(tan[i]))
-    time.sleep(59.0)
+    time.sleep(60.0)
