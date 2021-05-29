@@ -9,29 +9,48 @@ import datetime
 
 
 
-def dict_to_list(dic):
-    lst = []
-    for e in dic.items():
-        lst.extend(e)
-    return lst
+def search_comma_position(content):
+    flag = 0
+    count = -1
+    position = []
+
+    for i in content:
+        count +=1
+
+        if i == ",":
+            flag += 1
+            position.append(count)
+
+        if flag == 2:
+            break
+    
+    return position[0], position[1]
+
 
 
 def datafunc(request, **kwargs):
-    hiro_id = getattr(settings, 'PROJECT_ID')
+    #project_idは全アカウントで共通
+    project_id = getattr(settings, 'PROJECT_ID')
     content = kwargs.get('contents')
-    key = content[0:len(hiro_id)]
-    if secrets.compare_digest(key, hiro_id):
-        alluser_last_name = [i for i in User.objects.values('last_name')]
-        alluser_last_name_values =[dict_to_list(i)[1] for i in alluser_last_name if dict_to_list(i)[1] != '']
-        list = content.split(',')
-        TF = [list[0] == i for i in alluser_last_name_values]
-        if sum(TF) != 1:
-            return HttpResponseBadRequest()
+    key = content[0:len(project_id)]
+
+    if secrets.compare_digest(key, project_id):#project_idでkeyの頭部分をチェック
+        alluser_last_name = {i['last_name'] for i in User.objects.values('last_name')}
+
+        #カンマの位置でcontentを分割
+        posi1, posi2 = search_comma_position(content)
+        access_key = content[:posi1]
+        device_name = content[posi1+1:posi2]
+        list_content = content[posi2+1:]
+
+        if access_key in alluser_last_name:#どのユーザーかチェック
+            now_timestamp = int(datetime.datetime.now().timestamp())
+            #登録処理
+            IotModel.objects.create(token=access_key, device=device_name, time=str(now_timestamp), content=list_content)
+            return HttpResponse(now_timestamp)#正常終了のレスポンス
+        
         else:
-            content_position = len(list[0]) + len(list[1]) + 2
-            dt_now = datetime.datetime.now()
-            now_ts = int(dt_now.timestamp())
-            model = IotModel.objects.create(token=list[0], device=list[1], time=str(now_ts), content=content[content_position:])
-            return HttpResponse(now_ts)
+            return HttpResponseBadRequest()#該当ユーザー無しのレスポンス
+    
     else:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest()#project_idが一致しない場合のレスポンス
