@@ -36,9 +36,9 @@ $ docker-compose -f docker-compose.yml ps -a
 すべてUpになっていればOKです
 
 #ブラウザで確認
-[http://localhost/](http://localhost/)にアクセスして動作確認してください。
-また、開発環境用にメールサーバが[http://localhost/8025](http://localhost/8025)で稼働していますので、
-認証メールは[そこ](http://localhost/8025)からご確認ください。
+http://localhost/にアクセスして動作確認してください。
+また、開発環境用にメールサーバが http://localhost/8025 で稼働していますので、
+認証メールは上記URLからご確認ください。
 ```
 ### その他の操作
 ```
