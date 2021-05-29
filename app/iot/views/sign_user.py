@@ -7,9 +7,7 @@ def loginfunc(request):
     if request.method == "POST":
         email = request.POST['emailadress']
         psw = request.POST['password']
-        name = email.split('@')
-        username = name[0]
-        user = authenticate(request, username=username, password=psw)
+        user = authenticate(request, username=email, password=psw)
         if user is not None:
             login(request, user)
             return redirect('read')
