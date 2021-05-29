@@ -15,13 +15,21 @@ def signupfunc(request):
     if request.method == "POST":
         email = request.POST['emailadress']
         psw = request.POST['password']
-        name = email.split('@')
+
         try :
-            user = User.objects.create_user(name[0], email, psw)
+            user = User.objects.create_user(email, email, psw)
+        except :
+            return render(request, 'signup.html', {'error' : 'このユーザーはすでに登録されています。'})
+        
+        try:
             hash = getattr(settings, 'PROJECT_ID', ' ') + secrets.token_hex()
             user.is_active = False
             user.last_name = hash
             user.save()
+        except :
+            return render(request, 'signup.html', {'error' : 'DBへの入力値が不正です。'})
+        
+        try:
             from_email = 'EMAIL_ADDRESS'
             recipient_list = [email]
             subject = 'Activate Your Account'
@@ -34,10 +42,15 @@ def signupfunc(request):
                 'user': user,
                 'hash': hash,
             })
+        except :
+            return render(request, 'signup.html', {'error' : 'メール関係の変数が不正です。'})
+        
+        try:
             send_mail(subject, context, from_email, recipient_list)
             return render(request, 'signup.html', {'error' : '登録したメールアドレスへ認証メールを送信しました。URLをクリックして、アカウントを有効化してください。' , 'error2':'Please confirm your email address to complete the registration'})
-        except IntegrityError:
-            return render(request, 'signup.html', {'error' : 'このユーザーはすでに登録されています。'})
+        except :
+            return render(request, 'signup.html', {'error' : 'ユーザーの登録は完了しましたが、認証メールを送信に失敗しました。' , 'error2':'入力したメールアドレスを再度ご確認の上、管理者にお問い合わせください。'})
+    
     return render(request, 'signup.html')
 
 
@@ -62,4 +75,4 @@ def completefunc(request, **kwargs):
             print('user.is_active:',user.is_active)
             user.is_active = True
             user.save()
-            return redirect('read')
+            return redirect('meme')
