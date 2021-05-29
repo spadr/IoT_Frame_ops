@@ -39,6 +39,12 @@ $ docker-compose -f docker-compose.yml ps -a
 http://localhost/にアクセスして動作確認してください。
 また、開発環境用にメールサーバが http://localhost/8025 で稼働していますので、
 認証メールは上記URLからご確認ください。
+
+#実際にデータを送信する
+test.pyにsin,cos.tan波を送信するテスト用コードを記載しております。
+認証メールに記載されているアクセスキーを設定の上、お使いください。
+また、実際にマイコンを使って送信する場合は下記のリポジトリにサンプルコードがあります。
+https://github.com/spadr/CANASPAD-IoT_SAMPLE
 ```
 ### その他の操作
 ```

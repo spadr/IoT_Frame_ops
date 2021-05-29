@@ -4,7 +4,7 @@ import time
 
 #sin,cos.tan波を送信するテスト用コード
 
-key = #"YourAccessKey"
+key = "YourAccessKey"
 
 url    = "http://localhost/data/"+ key +",Senser00"
 N      = 256       # サンプル数

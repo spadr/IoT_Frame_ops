@@ -9,25 +9,6 @@ import datetime
 
 
 
-def search_comma_position(content):
-    flag = 0
-    count = -1
-    position = []
-
-    for i in content:
-        count +=1
-
-        if i == ",":
-            flag += 1
-            position.append(count)
-
-        if flag == 2:
-            break
-    
-    return position[0], position[1]
-
-
-
 def datafunc(request, **kwargs):
     #project_idは全アカウントで共通
     project_id = getattr(settings, 'PROJECT_ID')
@@ -38,7 +19,8 @@ def datafunc(request, **kwargs):
         alluser_last_name = {i['last_name'] for i in User.objects.values('last_name')}
 
         #カンマの位置でcontentを分割
-        posi1, posi2 = search_comma_position(content)
+        posi1 = content.index(',')
+        posi2 = content.index(',', posi1+1)
         access_key = content[:posi1]
         device_name = content[posi1+1:posi2]
         list_content = content[posi2+1:]
