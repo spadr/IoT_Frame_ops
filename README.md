@@ -11,6 +11,8 @@ RaspberryPiやM5Stackなどを接続して、ラフにIoTを実装しましょ�
 また、サービス終了が起こりえないので、長期間にわたりIoTを稼働することができます。<br>
 具体的には、不動産や大型の機械など長期間使用するもののIoT化でメリットが際立つでしょう。<br>
 <br>
+<br>
+<br>
 このAPIはDocker上で稼働します。<br>
 APIの使い方や具体的な使用例は→https://canaspad.com/post/1/
 <br>
