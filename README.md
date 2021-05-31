@@ -90,7 +90,7 @@ $ docker-compose -f docker-compose.yml down
 const char SSID[] = "Your WIFI SSID";
 const char PASSWORD[] = "Your WIFI PASS";
 
-const char* host     = "localhost IP";
+const char* host     = "IPv4 Adress";
 const char* event    = "/data/";
 const char* device_name    = "Your Device Name";
 const char* access_key    = "Your Access Key"; 
