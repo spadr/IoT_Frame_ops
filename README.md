@@ -75,3 +75,66 @@ $ docker-compose -f docker-compose.yml restart
 #イメージ、コンテナ、ボリューム、ネットワークを削除
 $ docker-compose -f docker-compose.yml down
 ```
+
+### M5StickCからデータを送信する場合のサンプルコード
+```
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <M5StickC.h>
+
+const char SSID[] = "Your WIFI SSID";
+const char PASSWORD[] = "Your WIFI PASS";
+
+const char* host     = "localhost";
+const char* event    = "/data/";
+const char* device_name    = "Your Device Name";
+const char* access_key    = "Your Access Key"; 
+//アカウントの新規登録のためにお送りした、アクティベーションメールに記載されています
+int sensor_value = 0; //センサーの値を格納します
+
+void setup() {
+  M5.begin();
+  
+  Serial.begin(115200);
+  
+  WiFi.begin(SSID, PASSWORD);
+  Serial.print("WiFi connecting");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(100);
+  }
+  Serial.println(" connected");
+}
+
+void loop() {
+  HTTPClient http;
+  
+  String URL = "http://";
+         URL += String(host);
+         URL += String(event);
+         URL += String(access_key)   + ",";
+         URL += String(device_name)  + ",";
+         URL += String(sensor_value) + "/";
+  
+  Serial.print("Requesting URL: ");
+  Serial.println(URL);
+  
+  http.begin(URL);
+  
+  int httpCode = http.GET();
+  if (httpCode > 0) { //Check for the returning code
+    String payload = http.getString();
+    Serial.println(httpCode);
+    Serial.println(payload);
+    }
+  else {
+      Serial.print("Error on HTTP request!");
+      Serial.println(httpCode);
+    }
+  
+  http.end();
+  
+  delay(30*60*1000);
+  sensor_value ++;
+}
+```
