@@ -37,7 +37,7 @@ $ chmod +x app/entrypoint.sh
 $ sudo docker-compose -f docker-compose.yml up -d --build
 
 #稼働状況を確認
-$ docker-compose -f docker-compose.yml ps -a
+$ sudo docker-compose -f docker-compose.yml ps -a
 すべてUpになっていればOKです
 
 #ブラウザで確認
@@ -54,31 +54,37 @@ https://github.com/spadr/CANASPAD-IoT_SAMPLE
 ### その他の操作
 ```
 #データの初期化
-$ docker-compose -f docker-compose.yml exec app python manage.py flush --no-input
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py flush --no-input
 
 #マイグレーション
-$ docker-compose -f docker-compose.yml exec app python manage.py makemigrations
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py makemigrations
 
 #DBの作成
-$ docker-compose -f docker-compose.yml exec app python manage.py migrate
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py migrate
 
 #静的ファイルのコピー
-$ docker-compose -f docker-compose.yml exec app python manage.py collectstatic --no-input --clear
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py collectstatic --no-input --clear
 
 #Djangoの管理者ユーザの登録
-$ docker-compose -f docker-compose.yml exec app python manage.py createsuperuser
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py createsuperuser
 
-#各コンテナを開始
-$ docker-compose -f docker-compose.yml start
-
-#各コンテナを停止
-$ docker-compose -f docker-compose.yml stop
-
-#各コンテナをリスタート
-$ docker-compose -f docker-compose.yml restart
+#イメージをビルドし、各コンテナを起動
+$ sudo docker-compose -f docker-compose.yml up -d --build
 
 #イメージ、コンテナ、ボリューム、ネットワークを削除
-$ docker-compose -f docker-compose.yml down
+$ sudo docker-compose -f docker-compose.yml down
+
+#各コンテナを開始
+$ sudo docker-compose -f docker-compose.yml start
+
+#各コンテナを停止
+$ sudo docker-compose -f docker-compose.yml stop
+
+#各コンテナをリスタート
+$ sudo docker-compose -f docker-compose.yml restart
+
+#稼働状況を確認
+$ sudo docker-compose -f docker-compose.yml ps -a
 ```
 
 ### M5StickCからデータを送信する場合のサンプルコード

@@ -51,9 +51,10 @@ def graphfunc(request):
     t =User.objects.filter(username__contains=username).values('last_name')
     user_db = IotModel.objects.filter(token__contains=t)
 
-    #データの形を整える
+    #クエリ
     df = read_frame(user_db.order_by('-time'), fieldnames=['device', 'time', 'content'])
-
+    
+    #データの形を整える
     device_name = df['device'] 
     device_name_set = device_name.drop_duplicates()
     device_time = df['time']
@@ -72,7 +73,7 @@ def graphfunc(request):
                 num = float(y.split(',')[0])#最初の数字をグラフに表示
                 data_y.append(num)
             except:
-                break
+                pass
             else:
                 time = pd.to_datetime(int(x)+60*60*9, unit='s')#日本時間UTC+9
                 data_x.append(time)
