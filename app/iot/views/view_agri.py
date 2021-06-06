@@ -15,9 +15,19 @@ import datetime
 
 import json
 
-from decimal import Decimal, ROUND_HALF_UP
-
 from django_pandas.io import read_frame
+
+def score_round(val:float, d:int) -> float:
+    """
+    四捨五入する
+    入力:四捨五入したい値val, 四捨五入する桁d
+    出力:四捨五入した値
+    """
+    d -= 1
+
+    p = 10 ** d
+
+    return (val * p * 2 + 1) // 2 / p
 
 
 
@@ -95,10 +105,15 @@ def greenhousefunc(request):
     json_df['Time'] = dt
     
     #時間ごとの値の推移を取得
-    time_freq = '60min'
+    time_freq = 60
+    time_delta = time_freq//60 *-1
+    freq = str(time_freq)+'min'
     json_df_N = json_df.groupby('PositionN')
     PositionN = json_df['PositionN'].drop_duplicates().sort_values(ascending=True)
-    transitions = [json_df_N.get_group(n).groupby(pd.Grouper(key='Time', freq=time_freq)).mean() for n in PositionN] #棟ごとの推移
+    PositionN_data = [json_df_N.get_group(n) for n in PositionN] #棟ごと
+    transitions = [n.groupby(pd.Grouper(key='Time', freq=freq)).mean() for n in PositionN_data] #棟ごとの推移
+    hour = datetime.datetime.now() + datetime.timedelta(hours=time_delta)
+    latest_datas = [n[n['Time'] >= hour] for n in PositionN_data] #棟ごと時間以内
     
     #グラフ描画
     kinds_of_senser_index = 0
@@ -109,14 +124,21 @@ def greenhousefunc(request):
     kinds_of_building = "Greenhouse"
     building_zero_padding = 2
     figs = [[col_name, go.Figure(), [], [], []] for col_name in col_names]
-    for transition,pn in zip(transitions,PositionN):
+    for transition,latest_data,pn in zip(transitions,latest_datas,PositionN):
         for fig in figs:
             if fig[kinds_of_senser_index] not in transition.columns.values.tolist():
                 break
+            HM_shape = np.array([np.max(latest_data['PositionX']),np.max(latest_data['PositionY'])], dtype=int) + 1
+            heatmap = np.zeros(HM_shape)
+            heatmap[:,:] = np.nan
+            for i,j,k in zip(latest_data[fig[kinds_of_senser_index]],latest_data['PositionX'],latest_data['PositionY']):
+                if not np.isnan(i):
+                    heatmap[int(j),int(k)] = i
+            latest_mean = score_round(np.nanmean(heatmap), 2)
             plot_y = transition[fig[kinds_of_senser_index]]
             plot_x = transition.index
-            fig[latest_value_index].append(plot_y[-1])#集計データから取るのはおかしい
-            fig[latest_time_index].append(plot_x[-1].to_pydatetime().strftime("%m/%d %H:%M"))#集計データから取るのはおかしい
+            fig[latest_value_index].append(latest_mean)
+            fig[latest_time_index].append(latest_data['Time'].iloc[-1].to_pydatetime().strftime("%m/%d %H:%M"))
             name_of_building = kinds_of_building + str(pn).zfill(building_zero_padding)
             fig[building_name_index].append(name_of_building)
             fig[1].add_trace(go.Scatter(x=plot_x, y=plot_y, mode='lines+markers',name=name_of_building))
