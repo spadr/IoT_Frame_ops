@@ -4,7 +4,7 @@ import time
 
 #sin,cos.tan波を送信するテスト用コード
 
-key = "Accesskey"
+key = "EQFbZpGGwnTR3za882qnPc28c249719188a274b2f227291cfe656634e11777bb46894cf14c18afeb4635f"
 
 url    = "http://localhost/dev/"+ key
 N      = 5000       # サンプル数
@@ -121,7 +121,7 @@ def device12(url,i):
     return string
 
 for i in range(N):
-    if (1622970000 + 600*i)> 1622982742:
+    if (1622970000 + 600*i)> 1623023277:
         print("END!!!!")
         break
     requests.get(device1(url,i))

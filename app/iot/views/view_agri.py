@@ -118,12 +118,13 @@ def greenhousefunc(request):
     #グラフ描画
     kinds_of_senser_index = 0
     figure_index = 1
-    latest_value_index = 2
-    latest_time_index = 3
-    building_name_index = 4
+    heatmap_index = 2
+    latest_value_index = 3
+    latest_time_index = 4
+    building_name_index = 5
     kinds_of_building = "Greenhouse"
     building_zero_padding = 2
-    figs = [[col_name, go.Figure(), [], [], []] for col_name in col_names]
+    figs = [[col_name, go.Figure(), [], [], [], []] for col_name in col_names]
     for transition,latest_data,pn in zip(transitions,latest_datas,PositionN):
         for fig in figs:
             if fig[kinds_of_senser_index] not in transition.columns.values.tolist():
@@ -141,8 +142,12 @@ def greenhousefunc(request):
             fig[latest_time_index].append(latest_data['Time'].iloc[-1].to_pydatetime().strftime("%m/%d %H:%M"))
             name_of_building = kinds_of_building + str(pn).zfill(building_zero_padding)
             fig[building_name_index].append(name_of_building)
-            fig[1].add_trace(go.Scatter(x=plot_x, y=plot_y, mode='lines+markers',name=name_of_building))
-    plot_figs = [[fig[kinds_of_senser_index], plot(fig[figure_index], output_type='div', include_plotlyjs=False)] for fig in figs]
+            fig[figure_index].add_trace(go.Scatter(x=plot_x, y=plot_y, mode='lines+markers',name=name_of_building))
+            fig[heatmap_index].append(go.Figure().add_traces(go.Heatmap(z=heatmap, name=name_of_building, connectgaps=False)))
+    plot_figs = [[fig[kinds_of_senser_index], \
+                  plot(fig[figure_index], output_type='div', include_plotlyjs=False),\
+                  [plot(heatmap, output_type='div', include_plotlyjs=False) for heatmap in fig[heatmap_index]]
+                ] for fig in figs]
     #plot_figs[0] はセンサーの種類 , plot_figs[1] はグラフ
     
     #html成型=後でTemplate作成=
@@ -156,6 +161,7 @@ def greenhousefunc(request):
             unit = " " + sensor.split("(")[-1][:-1]
         sensor_title = sensor_title.format(sensor_name=sensor)
         sensor_figure = plot_fig[figure_index]
+        sensor_heatmaps = plot_fig[heatmap_index]
         plot_html += sensor_title
         plot_html += '<table class="table bg-light">'
         plot_html += '<thead><tr>'
@@ -174,6 +180,8 @@ def greenhousefunc(request):
         plot_html += '</table>'
         plot_html += '</div>'
         plot_html += sensor_figure
+        for sensor_heatmap in sensor_heatmaps:
+            plot_html += sensor_heatmap
         plot_html += '<hr>'
     #raise ValueError("error!")
     return render(request, 'greenhouse.html', {'plot_gantts':plot_html ,'username':username})
