@@ -29,25 +29,12 @@ def score_round(val:float, d:int) -> float:
 
     return (val * p * 2 + 1) // 2 / p
 
-
-
-@login_required
-def greenhousefunc(request):
-    #ユーザーが登録したデータを取得
-    username = request.user.get_username()
-    t =User.objects.filter(username__contains=username).values('last_name')
-    user_db = IotModel.objects.filter(token__contains=t)
-
-    #クエリ条件 : 一週間以内&GHタグ含む
-    now = int(datetime.datetime.now().timestamp())
-    last_week = now - 604800
-    query = user_db.filter(device__gte=str(last_week)).filter(device__contains='GH')
-
-    #pandas.DataFrameで読み込み
-    df = read_frame(query, fieldnames=['device', 'time', 'content'])
-
-    """CSV形式の場合"""
-    #--------------------------------------------------------------------------------
+def csv2json(df:object) -> object:
+    """
+    カンマ区切りのデータからからjsonへ変形
+    入力:カンマ区切りのデータ, pandas.Dataframe
+    出力:json object
+    """
     #データの形を整える
     name = df['device'] 
     name_ditinct = name.drop_duplicates()
@@ -92,8 +79,25 @@ def greenhousefunc(request):
                     _json["Time"] = str(x)
                 jsons.append(_json)
     jsons_object = json.dumps(jsons, indent = 4)
-    #--------------------------------------------------------------------------------
+    return jsons_object
+
+@login_required
+def greenhousefunc(request):
+    #ユーザーが登録したデータを取得
+    username = request.user.get_username()
+    t =User.objects.filter(username__contains=username).values('last_name')
+    user_db = IotModel.objects.filter(token__contains=t)
+
+    #クエリ条件 : 一週間以内&GHタグ含む
+    now = int(datetime.datetime.now().timestamp())
+    last_week = now - 604800
+    query = user_db.filter(device__gte=str(last_week)).filter(device__contains='GH')
+
+    #pandas.DataFrameで読み込み
+    df = read_frame(query, fieldnames=['device', 'time', 'content'])
+
     """CSV形式の場合"""
+    jsons_object = csv2json(df)
 
     #JSONから読み込み
     json_df = pd.read_json(jsons_object)
@@ -117,17 +121,24 @@ def greenhousefunc(request):
     
     #グラフ描画
     kinds_of_senser_index = 0
-    figure_index = 1
-    heatmap_index = 2
-    latest_value_index = 3
-    latest_time_index = 4
-    building_name_index = 5
+    unit_index =            1
+    figure_index =          2
+    heatmap_index =         3
+    building_name_index =   4
+    latest_value_index =    5
+    latest_time_index =     6
     kinds_of_building = "Greenhouse"
     building_zero_padding = 2
-    figs = [[col_name, go.Figure(), [], [], [], []] for col_name in col_names]
+    figs = [[col_name, [], go.Figure(), [], [], [], [] ] for col_name in col_names]
     for transition,latest_data,pn in zip(transitions,latest_datas,PositionN):
         for fig in figs:
+            length = len(latest_data.index)
+            unit = ""
+            if "(" in fig[kinds_of_senser_index]:
+                unit = fig[kinds_of_senser_index].split("(")[-1][:-1]
             if fig[kinds_of_senser_index] not in transition.columns.values.tolist():
+                break
+            elif length ==0:
                 break
             HM_shape = np.array([np.max(latest_data['PositionX']),np.max(latest_data['PositionY'])], dtype=int) + 1
             heatmap = np.zeros(HM_shape)
@@ -138,49 +149,76 @@ def greenhousefunc(request):
             latest_mean = score_round(np.nanmean(heatmap), 2)
             plot_y = transition[fig[kinds_of_senser_index]]
             plot_x = transition.index
+            fig[unit_index].append(unit)
             fig[latest_value_index].append(latest_mean)
             fig[latest_time_index].append(latest_data['Time'].iloc[-1].to_pydatetime().strftime("%m/%d %H:%M"))
             name_of_building = kinds_of_building + str(pn).zfill(building_zero_padding)
             fig[building_name_index].append(name_of_building)
-            fig[figure_index].add_trace(go.Scatter(x=plot_x, y=plot_y, mode='lines+markers',name=name_of_building))
-            fig[heatmap_index].append(go.Figure().add_traces(go.Heatmap(z=heatmap, name=name_of_building, connectgaps=False)))
-    plot_figs = [[fig[kinds_of_senser_index], \
-                  plot(fig[figure_index], output_type='div', include_plotlyjs=False),\
-                  [plot(heatmap, output_type='div', include_plotlyjs=False) for heatmap in fig[heatmap_index]]
-                ] for fig in figs]
-    #plot_figs[0] はセンサーの種類 , plot_figs[1] はグラフ
-    
+            fig[figure_index].add_trace(go.Scatter( x=plot_x, 
+                                                    y=plot_y, 
+                                                    mode='lines+markers',
+                                                    name=name_of_building
+                                                    ))
+            fig[heatmap_index].append(go.Figure().add_traces(go.Heatmap(z=heatmap, 
+                                                                        connectgaps=False, 
+                                                                        showlegend=False,
+                                                                        colorbar_title_text=fig[kinds_of_senser_index],
+                                                                        name=name_of_building
+                                                                        )))
+    plot_figs = [[  fig[kinds_of_senser_index], \
+                    fig[unit_index], \
+                    plot(fig[figure_index], output_type='div', include_plotlyjs=False),\
+                    [plot(heatmap, output_type='div', include_plotlyjs=False) for heatmap in fig[heatmap_index]],\
+                    fig[building_name_index],\
+                    fig[latest_value_index],\
+                    fig[latest_time_index]
+    ] for fig in figs]
+
+    """
+    return render(request, 'greenhouse2.html', { 'plot_figs':figs,
+                                                'username':username,
+                                                'kinds_of_senser_index':kinds_of_senser_index,
+                                                'unit_index':unit_index,
+                                                'figure_index':figure_index,
+                                                'heatmap_index':heatmap_index,
+                                                'building_name_index':building_name_index,
+                                                'latest_value_index':latest_value_index,
+                                                'latest_time_index':latest_time_index
+                                              })
+    """
     #html成型=後でTemplate作成=
     plot_html = ""
     for plot_fig in plot_figs:
-        unit = ""
         plot_html += '<div class="font-large container row col">'
         sensor_title = '<p>{sensor_name}</p>'
         sensor = plot_fig[kinds_of_senser_index]
-        if "(" in sensor:
-            unit = " " + sensor.split("(")[-1][:-1]
         sensor_title = sensor_title.format(sensor_name=sensor)
-        sensor_figure = plot_fig[figure_index]
         sensor_heatmaps = plot_fig[heatmap_index]
         plot_html += sensor_title
         plot_html += '<table class="table bg-light">'
         plot_html += '<thead><tr>'
-        for p in fig[building_name_index]:
+        for p in plot_fig[building_name_index]:
             plot_html +='<th scope="col" class="table-active">{0}</th>'.format(p)
         plot_html += '</tr></thead>'
         plot_html += '<tbody><tr>'
-        for v in fig[latest_value_index]:
-            unit_v = str(v) + " " + unit
+        unit = plot_fig[unit_index]
+        for v in plot_fig[latest_value_index]:
+            if unit != "":
+                unit_v = str(v) + " " + str(unit)
+            else:
+                unit_v = str(v)
             plot_html +='<td scope="row">{0}</td table-primary>'.format(unit_v)
         plot_html += '</tr></tbody>'
         plot_html += '<tbody><tr>'
-        for t in fig[latest_time_index]:
-            plot_html +='<td scope="row" class="table-active">{0}</td>'.format(t)
+        for ti in plot_fig[latest_time_index]:
+            plot_html +='<td scope="row" class="table-active">{0}</td>'.format(ti)
         plot_html += '</tr></tbody>'
         plot_html += '</table>'
         plot_html += '</div>'
+        sensor_figure = plot_fig[figure_index]
         plot_html += sensor_figure
-        for sensor_heatmap in sensor_heatmaps:
+        for sensor_heatmap,building in zip(sensor_heatmaps,plot_fig[building_name_index]):
+            plot_html +='<p>{0}</p>'.format(building)
             plot_html += sensor_heatmap
         plot_html += '<hr>'
     #raise ValueError("error!")
