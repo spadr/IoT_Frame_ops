@@ -121,7 +121,7 @@ def device12(url,i):
     return string
 
 for i in range(N):
-    if (1622970000 + 600*i)> 1623055942:
+    if (1622970000 + 600*i)> 1623122459:
         print("END!!!!")
         break
     requests.get(device1(url,i))

@@ -150,7 +150,7 @@ def greenhousefunc(request):
             plot_y = transition[fig[kinds_of_senser_index]]
             plot_x = transition.index
             fig[unit_index].append(unit)
-            fig[latest_value_index].append(latest_mean)
+            fig[latest_value_index].append(str(latest_mean))
             fig[latest_time_index].append(latest_data['Time'].iloc[-1].to_pydatetime().strftime("%m/%d %H:%M"))
             name_of_building = kinds_of_building + str(pn).zfill(building_zero_padding)
             fig[building_name_index].append(name_of_building)
@@ -165,17 +165,24 @@ def greenhousefunc(request):
                                                                         colorbar_title_text=fig[kinds_of_senser_index],
                                                                         name=name_of_building
                                                                         )))
-    plot_figs = [[  fig[kinds_of_senser_index], \
-                    fig[unit_index], \
-                    plot(fig[figure_index], output_type='div', include_plotlyjs=False),\
-                    [plot(heatmap, output_type='div', include_plotlyjs=False) for heatmap in fig[heatmap_index]],\
-                    fig[building_name_index],\
-                    fig[latest_value_index],\
-                    fig[latest_time_index]
-    ] for fig in figs]
-
-    """
-    return render(request, 'greenhouse2.html', { 'plot_figs':figs,
+    figs = list(zip(*figs))
+    kinds_of_senser = figs[kinds_of_senser_index]
+    unit_name = figs[unit_index]
+    figure_plot = [str(plot(figure, output_type='div', include_plotlyjs=False)) for figure in figs[figure_index]]
+    heatmap_plot = [ ''.join([plot(heatmap, output_type='div', include_plotlyjs=False) for heatmap in heatmaps]) for heatmaps in figs[heatmap_index]]
+    building_name = figs[building_name_index]
+    latest_value = figs[latest_value_index]
+    latest_time = figs[latest_time_index]
+    output_data = tuple(zip(*(
+                        kinds_of_senser,
+                        unit_name,
+                        figure_plot,
+                        heatmap_plot,
+                        building_name,
+                        latest_value,
+                        latest_time
+                     )))
+    return render(request, 'greenhouse.html', { 'contents':output_data,
                                                 'username':username,
                                                 'kinds_of_senser_index':kinds_of_senser_index,
                                                 'unit_index':unit_index,
@@ -183,43 +190,5 @@ def greenhousefunc(request):
                                                 'heatmap_index':heatmap_index,
                                                 'building_name_index':building_name_index,
                                                 'latest_value_index':latest_value_index,
-                                                'latest_time_index':latest_time_index
+                                                'latest_time_index':latest_time_index,
                                               })
-    """
-    #html成型=後でTemplate作成=
-    plot_html = ""
-    for plot_fig in plot_figs:
-        plot_html += '<div class="font-large container row col">'
-        sensor_title = '<p>{sensor_name}</p>'
-        sensor = plot_fig[kinds_of_senser_index]
-        sensor_title = sensor_title.format(sensor_name=sensor)
-        sensor_heatmaps = plot_fig[heatmap_index]
-        plot_html += sensor_title
-        plot_html += '<table class="table bg-light">'
-        plot_html += '<thead><tr>'
-        for p in plot_fig[building_name_index]:
-            plot_html +='<th scope="col" class="table-active">{0}</th>'.format(p)
-        plot_html += '</tr></thead>'
-        plot_html += '<tbody><tr>'
-        unit = plot_fig[unit_index]
-        for v in plot_fig[latest_value_index]:
-            if unit != "":
-                unit_v = str(v) + " " + str(unit)
-            else:
-                unit_v = str(v)
-            plot_html +='<td scope="row">{0}</td table-primary>'.format(unit_v)
-        plot_html += '</tr></tbody>'
-        plot_html += '<tbody><tr>'
-        for ti in plot_fig[latest_time_index]:
-            plot_html +='<td scope="row" class="table-active">{0}</td>'.format(ti)
-        plot_html += '</tr></tbody>'
-        plot_html += '</table>'
-        plot_html += '</div>'
-        sensor_figure = plot_fig[figure_index]
-        plot_html += sensor_figure
-        for sensor_heatmap,building in zip(sensor_heatmaps,plot_fig[building_name_index]):
-            plot_html +='<p>{0}</p>'.format(building)
-            plot_html += sensor_heatmap
-        plot_html += '<hr>'
-    #raise ValueError("error!")
-    return render(request, 'greenhouse.html', {'plot_gantts':plot_html ,'username':username})

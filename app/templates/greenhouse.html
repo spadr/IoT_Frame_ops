@@ -20,7 +20,45 @@
     <br>
     <hr>
     {% autoescape off %}
-    {{ plot_gantts | safe }}
+    {% for content in contents %}
+    <div class="font-large container row col">
+      <p>{{ content.0 }}</p>
+      <table class="table bg-light">
+        <thead>
+          <tr>
+            {% for p in content.4 %}
+              <th scope="col" class="table-active">{{ p }}</th>
+            {% empty %}
+              <p>データがありません</p>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {% for v in content.5 %}
+              <td scope="row">{{ v }}</td table-primary>
+            {% empty %}
+              <p>データがありません</p>
+            {% endfor %}
+          </tr>
+        </tbody>
+        <tbody>
+          <tr>
+            {% for t in content.6 %}
+              <td scope="row" class="table-active">{{ t }}</td>
+            {% empty %}
+              <p>データがありません</p>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    {{ content.2 }}
+    {{ content.3 }}
+    <hr>
+    {% empty %}
+     <p>データがありません</p>
+    {% endfor %}
     {% endautoescape %}
   </div>
 </div>
