@@ -12,21 +12,17 @@
 
 <div class="container">
   <div class="alert alert-success" role="alert">
-    <a href="{% url 'read' %}" role="button" class="btn btn-success" aria-pressed="true">TABLE</a>
-    <a href="{% url 'graph' %}" role="button" class="btn btn-primary" aria-pressed="true">UPDATE</a>
-    <a href="{% url 'dl' %}" role="button" class="btn btn-warning" aria-pressed="true">DOWNLOAD</a>
-    <a href="{% url 'logout' %}" class="btn btn-secondary" role="button" aria-pressed="true">LOGOUT</a>
-    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" aria-pressed="true">DELETE</button>
+    {% include 'button.html' %}
     <br>
     <hr>
     {% autoescape off %}
     {% for content in contents %}
     <div class="font-large container row col">
-      <p>{{ content.0 }}</p>
+      <p>{{ content.kinds_of_senser }}</p>
       <table class="table bg-light">
         <thead>
           <tr>
-            {% for p in content.4 %}
+            {% for p in content.building_name %}
               <th scope="col" class="table-active">{{ p }}</th>
             {% empty %}
               <p>データがありません</p>
@@ -35,7 +31,7 @@
         </thead>
         <tbody>
           <tr>
-            {% for v in content.5 %}
+            {% for v in content.latest_value %}
               <td scope="row">{{ v }}</td table-primary>
             {% empty %}
               <p>データがありません</p>
@@ -44,7 +40,7 @@
         </tbody>
         <tbody>
           <tr>
-            {% for t in content.6 %}
+            {% for t in content.latest_time %}
               <td scope="row" class="table-active">{{ t }}</td>
             {% empty %}
               <p>データがありません</p>
@@ -53,8 +49,8 @@
         </tbody>
       </table>
     </div>
-    {{ content.2 }}
-    {{ content.3 }}
+    {{ content.figure_plot }}
+    {{ content.heatmap_plot }}
     <hr>
     {% empty %}
      <p>データがありません</p>

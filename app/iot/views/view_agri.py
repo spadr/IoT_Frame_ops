@@ -17,6 +17,8 @@ import json
 
 from django_pandas.io import read_frame
 
+LIMIT_QUERY = getattr(settings, "LIMIT_QUERY", 10000)
+
 def score_round(val:float, d:int) -> float:
     """
     四捨五入する
@@ -82,17 +84,19 @@ def csv2json(df:object) -> object:
     return jsons_object
 
 @login_required
-def greenhousefunc(request):
+def agrifunc(request):
     #ユーザーが登録したデータを取得
     username = request.user.get_username()
     t =User.objects.filter(username__contains=username).values('last_name')
     user_db = IotModel.objects.filter(token__contains=t)
 
-    #クエリ条件 : 一週間以内&GHタグ含む
-    now = int(datetime.datetime.now().timestamp())
-    last_week = now - 604800
-    query = user_db.filter(device__gte=str(last_week)).filter(device__contains='GH')
+    #クエリ条件 : GHタグ含む
+    query = user_db.filter(device__contains='AGRI').order_by('time').reverse()[:LIMIT_QUERY]
 
+    #データが無いとき
+    if len(query)==0:
+        return render(request, 'nodata.html')
+    
     #pandas.DataFrameで読み込み
     df = read_frame(query, fieldnames=['device', 'time', 'content'])
 
@@ -173,22 +177,17 @@ def greenhousefunc(request):
     building_name = figs[building_name_index]
     latest_value = figs[latest_value_index]
     latest_time = figs[latest_time_index]
-    output_data = tuple(zip(*(
-                        kinds_of_senser,
-                        unit_name,
-                        figure_plot,
-                        heatmap_plot,
-                        building_name,
-                        latest_value,
-                        latest_time
-                     )))
-    return render(request, 'greenhouse.html', { 'contents':output_data,
+    output = []
+    for sens_num in range(len(kinds_of_senser)):
+        a_senser = dict()
+        a_senser['kinds_of_senser'] = kinds_of_senser[sens_num]
+        a_senser['unit_name'] = unit_name[sens_num]
+        a_senser['figure_plot'] = figure_plot[sens_num]
+        a_senser['heatmap_plot'] = heatmap_plot[sens_num]
+        a_senser['building_name'] = building_name[sens_num]
+        a_senser['latest_value'] = latest_value[sens_num]
+        a_senser['latest_time'] = latest_time[sens_num]
+        output.append(a_senser)
+    return render(request, 'agri.html', { 'contents':output,
                                                 'username':username,
-                                                'kinds_of_senser_index':kinds_of_senser_index,
-                                                'unit_index':unit_index,
-                                                'figure_index':figure_index,
-                                                'heatmap_index':heatmap_index,
-                                                'building_name_index':building_name_index,
-                                                'latest_value_index':latest_value_index,
-                                                'latest_time_index':latest_time_index,
                                               })

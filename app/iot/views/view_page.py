@@ -15,7 +15,7 @@ import datetime
 
 from django_pandas.io import read_frame
 
-
+LIMIT_QUERY = getattr(settings, "LIMIT_QUERY", 10000)
 
 def memefunc(request):
     host = settings.ALLOWED_HOSTS
@@ -31,8 +31,8 @@ def readfunc(request):
     #ユーザーが登録したデータを取得
     username = request.user.get_username()
     t =User.objects.filter(username__contains=username).values('last_name')
-    user_db = IotModel.objects.filter(token__contains=t)
-    df = read_frame(user_db.order_by('-time'), fieldnames=['device', 'time', 'content'])
+    user_db = IotModel.objects.filter(token__contains=t).order_by('time').reverse()[:LIMIT_QUERY]
+    df = read_frame(user_db, fieldnames=['device', 'time', 'content'])
 
     #UNIX時間を普通の日時表示に変更
     dt = [datetime.datetime.fromtimestamp(int(i)) for i in df['time']]
@@ -49,10 +49,10 @@ def graphfunc(request):
     #ユーザーが登録したデータを取得
     username = request.user.get_username()
     t =User.objects.filter(username__contains=username).values('last_name')
-    user_db = IotModel.objects.filter(token__contains=t)
+    user_db = IotModel.objects.filter(token__contains=t).order_by('time').reverse()[:LIMIT_QUERY]
 
     #クエリ
-    df = read_frame(user_db.order_by('-time'), fieldnames=['device', 'time', 'content'])
+    df = read_frame(user_db, fieldnames=['device', 'time', 'content'])
     
     #データの形を整える
     device_name = df['device'] 
