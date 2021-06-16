@@ -149,3 +149,6 @@ STATICFILES_DIRS = [
 # set upload files directory and url path
 MEDIA_URL = "/mediafiles/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
+
+
+LIMIT_QUERY = 10000

@@ -15,7 +15,7 @@ import datetime
 
 from django_pandas.io import read_frame
 
-
+LIMIT_QUERY = getattr(settings, "LIMIT_QUERY", 10000)
 
 def memefunc(request):
     host = settings.ALLOWED_HOSTS
@@ -31,8 +31,8 @@ def readfunc(request):
     #ユーザーが登録したデータを取得
     username = request.user.get_username()
     t =User.objects.filter(username__contains=username).values('last_name')
-    user_db = IotModel.objects.filter(token__contains=t)
-    df = read_frame(user_db.order_by('-time'), fieldnames=['device', 'time', 'content'])
+    user_db = IotModel.objects.filter(token__contains=t).order_by('time').reverse()[:LIMIT_QUERY]
+    df = read_frame(user_db, fieldnames=['device', 'time', 'content'])
 
     #UNIX時間を普通の日時表示に変更
     dt = [datetime.datetime.fromtimestamp(int(i)) for i in df['time']]
@@ -49,11 +49,12 @@ def graphfunc(request):
     #ユーザーが登録したデータを取得
     username = request.user.get_username()
     t =User.objects.filter(username__contains=username).values('last_name')
-    user_db = IotModel.objects.filter(token__contains=t)
+    user_db = IotModel.objects.filter(token__contains=t).order_by('time').reverse()[:LIMIT_QUERY]
 
+    #クエリ
+    df = read_frame(user_db, fieldnames=['device', 'time', 'content'])
+    
     #データの形を整える
-    df = read_frame(user_db.order_by('-time'), fieldnames=['device', 'time', 'content'])
-
     device_name = df['device'] 
     device_name_set = device_name.drop_duplicates()
     device_time = df['time']
@@ -72,7 +73,7 @@ def graphfunc(request):
                 num = float(y.split(',')[0])#最初の数字をグラフに表示
                 data_y.append(num)
             except:
-                break
+                pass
             else:
                 time = pd.to_datetime(int(x)+60*60*9, unit='s')#日本時間UTC+9
                 data_x.append(time)

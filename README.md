@@ -37,7 +37,7 @@ $ chmod +x app/entrypoint.sh
 $ sudo docker-compose -f docker-compose.yml up -d --build
 
 #稼働状況を確認
-$ docker-compose -f docker-compose.yml ps -a
+$ sudo docker-compose -f docker-compose.yml ps -a
 すべてUpになっていればOKです
 
 #ブラウザで確認
@@ -54,31 +54,37 @@ https://github.com/spadr/CANASPAD-IoT_SAMPLE
 ### その他の操作
 ```
 #データの初期化
-$ docker-compose -f docker-compose.yml exec app python manage.py flush --no-input
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py flush --no-input
 
 #マイグレーション
-$ docker-compose -f docker-compose.yml exec app python manage.py makemigrations
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py makemigrations
 
 #DBの作成
-$ docker-compose -f docker-compose.yml exec app python manage.py migrate
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py migrate
 
 #静的ファイルのコピー
-$ docker-compose -f docker-compose.yml exec app python manage.py collectstatic --no-input --clear
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py collectstatic --no-input --clear
 
 #Djangoの管理者ユーザの登録
-$ docker-compose -f docker-compose.yml exec app python manage.py createsuperuser
+$ sudo docker-compose -f docker-compose.yml exec app python manage.py createsuperuser
 
-#各コンテナを開始
-$ docker-compose -f docker-compose.yml start
-
-#各コンテナを停止
-$ docker-compose -f docker-compose.yml stop
-
-#各コンテナをリスタート
-$ docker-compose -f docker-compose.yml restart
+#イメージをビルドし、各コンテナを起動
+$ sudo docker-compose -f docker-compose.yml up -d --build
 
 #イメージ、コンテナ、ボリューム、ネットワークを削除
-$ docker-compose -f docker-compose.yml down
+$ sudo docker-compose -f docker-compose.yml down
+
+#各コンテナを開始
+$ sudo docker-compose -f docker-compose.yml start
+
+#各コンテナを停止
+$ sudo docker-compose -f docker-compose.yml stop
+
+#各コンテナをリスタート
+$ sudo docker-compose -f docker-compose.yml restart
+
+#稼働状況を確認
+$ sudo docker-compose -f docker-compose.yml ps -a
 ```
 
 ### M5StickCからデータを送信する場合のサンプルコード
@@ -142,4 +148,26 @@ void loop() {
   delay(30*60*1000);
   sensor_value ++;
 }
+```
+
+
+### 追加機能 : 温室の情報を可視化する機能(AGRI)
+```
+#温室の情報を可視化する機能とは?
+温室の気温や湿度、CO2濃度などを可視化するダッシュボードです。
+所謂スマートアグリでよく見る機能です。
+
+#何ができるの?
+温室の温度などを棟ごとに、推移や分布の形で確認できます。
+
+#どうやって使うの?
+例
+device_name："AGRI-Temperature(˚C)_Humidity(%)-0_0_2"
+sensor_value："25.7,58.3"
+
+device_nameにはセンサーに関わるメタ情報を記載します。
+書き込む情報は"AGRI", 測定項目(単位), 位置情報(棟番号_X軸_Y軸)で、それぞれを"-"で区切ります。
+
+sensor_valueにはdevice_nameにある測定項目の測定値を順番通りに記載します。
+
 ```
