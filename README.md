@@ -1,9 +1,10 @@
 # IoT_Frame_ops
 IoTデバイスをサーバに接続するためのAPIです。<br>
-RaspberryPiやM5Stackなどを接続して、ラフにIoTを実装しましょう。<br>
+RaspberryPiやM5Stackなどのedge端末を接続して、ラフにIoTを実装しましょう。<br>
 <br>
 自宅のスマートホーム化、温室にスマート農業を導入、アナログ計器をスマホで確認など<br>
 様々な活用方法が考えられます。<br>
+[RaspberryPiをサーバーにしたい場合はこちら](https://github.com/spadr/IoT_Frame_RaspberryPi)<br>
 <br>
 
 ### AWSやGoogle Cloud、その他企業のIoTサービスとの比較
