@@ -16,7 +16,12 @@
     <br>
     <hr>
     {% autoescape off %}
-    {{ plot_gantt }}
+    {% for contents in plot_gantt %}
+      {{contents.plot}}
+      <hr>
+    {% empty %}
+      <p>データがありません</p>
+    {% endfor %}
     {% endautoescape %}
   </div>
 </div>

@@ -25,13 +25,11 @@ def signupfunc(request):
         
         #Accesskeyの生成
         try:
-            hash = getattr(settings, 'PROJECT_ID', ' ') + secrets.token_hex()
             user.is_active = False
-            user.last_name = hash
             user.save()
         except :
             #ダメなとき
-            return render(request, 'signup.html', {'error' : 'DBへの入力値が不正です。'})
+            return render(request, 'signup.html', {'error' : '登録できません。'})
         
         #認証メールの作成
         try:
@@ -47,7 +45,6 @@ def signupfunc(request):
                 'domain': domain,
                 'token': dumps(user.pk),
                 'user': user,
-                'hash': hash,
             })
         except :
             #ダメなとき

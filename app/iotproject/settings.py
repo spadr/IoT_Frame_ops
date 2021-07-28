@@ -42,14 +42,15 @@ EMAIL_USE_TLS = is_true(os.environ.get('EMAIL_USE_TLS'))
 
 # Application definition
 
+
 INSTALLED_APPS = [
+    'iot.apps.IotConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'iot.apps.IotConfig',
     'django_pandas',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -163,7 +164,7 @@ MEDIA_URL = "/mediafiles/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 
 
-LIMIT_QUERY = 10000
+LIMIT_QUERY = 5000
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 SIMPLE_JWT = {
@@ -194,3 +195,6 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+
+

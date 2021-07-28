@@ -11,11 +11,14 @@ urlpatterns = [
     path('read/', views.view_page.readfunc, name='read'),
     path('graph/', views.view_page.graphfunc, name='graph'),
     path('complete/<token>/', views.make_user.completefunc, name='complete'),
-    path('agri/', views.view_agri.agrifunc, name='agri'),
     path('', views.view_page.memefunc, name='meme'),
-    path('dl/', views.manipulate_data.dlfunc, name='dl'),
-    path('delete/', views.manipulate_data.deletefunc, name='delete'),
+    path('console/', views.manipulate_data.consolefunc, name='console'),
+    path('profile/', views.manipulate_data.profilefunc, name='profile'),
+    path('postdata/', views.create_data.browserpostfunc, name='browserpost'),
+    path('api/set/', views.create_data.DeviceSetApi.as_view(), name='set'),
     path('api/data/', views.create_data.DataReceiveApi.as_view(), name='data'),
+    path('api/data/output/', views.create_data.DataSendApi.as_view(), name='output'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
+
