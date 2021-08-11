@@ -16,6 +16,8 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_201_CREATED, HTTP_404_NOT_FOUND
 from rest_framework.views import APIView
 
+from .forms import ImageForm
+
 from django.utils import timezone
 UTC = datetime.timezone(datetime.timedelta(hours=0), 'UTC')
 
@@ -44,7 +46,6 @@ class DeviceSetApi(APIView):
             #device = DeviceModel.objects.get(user=request.user, channel=device_channel, name=device_name)
         except:
             device = DeviceModel.objects.create(user=request.user,
-                                                token=secrets.token_hex()+str(now_timestamp),
                                                 name=device_name,
                                                 channel=device_channel,
                                                 data_type=device_type,
@@ -61,7 +62,7 @@ class DeviceSetApi(APIView):
             device.interval=device_min
             device.save()
         
-        response = {'time': now_timestamp, 'device_token': device.token}
+        response = {'time': now_timestamp, 'device_token': device.id}
         return Response(response, status=HTTP_201_CREATED)#正常終了のレスポンス
 
 
@@ -83,7 +84,7 @@ class DataReceiveApi(APIView):
             device_time = int(packet['time'])
             device_data = packet['data']
             
-            device = DeviceModel.objects.get(user=request.user, token=device_token)
+            device = DeviceModel.objects.get(user=request.user, id=device_token)
             device.activity = timezone.localtime(datetime.datetime.fromtimestamp(now_timestamp, UTC))
             #if device.is_active == False:
             #send line massege
@@ -97,9 +98,6 @@ class DataReceiveApi(APIView):
                                            time=timezone.localtime(datetime.datetime.fromtimestamp(device_time, UTC)),
                                            data=float(device_data)
                                         )
-            
-            elif data_type == 'image':
-                pass
             
             elif data_type == 'boolean':
                 pass
@@ -133,7 +131,7 @@ class DataSendApi(APIView):
         try:
             device_token = datas['device_token']
             data_lengh = int(datas['lengh']) + 1
-            queryset = NumberModel.objects.filter(device__user=request.user, device__token=device_token).order_by('time').reverse().select_related()[:data_lengh]
+            queryset = NumberModel.objects.filter(device__user=request.user, device__id=device_token).order_by('time').reverse().select_related()[:data_lengh]
             res_query = serializers.serialize('json', queryset)
         except:
             return Response(status=HTTP_404_NOT_FOUND)#該当データ無しのレスポンス
@@ -156,7 +154,6 @@ def browserpostfunc(request):
             device = DeviceModel.objects.get(user=request.user, channel=device_channel, name=device_name)
         except:
             device = DeviceModel.objects.create(user=request.user,
-                                                token=secrets.token_hex()+str(now_timestamp),
                                                 name=device_name,
                                                 channel=device_channel,
                                                 data_type='number',
@@ -172,3 +169,24 @@ def browserpostfunc(request):
                                    )
         
         return redirect(request.META['HTTP_REFERER'])
+
+
+class ImageReceiveApi(APIView):
+    def get(self, request):
+        now_timestamp = int(datetime.datetime.now().timestamp())
+        response = {'time': now_timestamp}
+        return Response(response, status=HTTP_200_OK)
+
+    def post(self, request):
+        now_timestamp = int(datetime.datetime.now().timestamp())
+        if not request.user.is_authenticated:
+                return Response(status=HTTP_401_UNAUTHORIZED)
+        
+        img = ImageForm(request.POST, request.FILES)
+        if img.is_valid():
+            img.save()
+        else:
+            return Response(status=HTTP_404_NOT_FOUND)
+        
+        response = {'time': now_timestamp}
+        return Response(response, status=HTTP_201_CREATED)#正常終了のレスポンス

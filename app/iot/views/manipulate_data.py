@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 
-from .models import NumberModel, Profile
+from .models import NumberModel, DeviceModel, Profile
 
 import datetime
 
@@ -25,19 +25,22 @@ def consolefunc(request):
         if mode == 'select':
             query_parameter = '?name=' + device_name + '&channel=' + device_channel
             return redirect(request.META['HTTP_REFERER'] + query_parameter)
-
-        if device_channel =='$all':
-            if device_name =='$all':
-                user_db = NumberModel.objects.filter(device__user=request.user).order_by('time').values('time', 'device__channel', 'device__name', 'data')
-            else:
-                user_db = NumberModel.objects.filter(device__user=request.user, device__name=device_name).order_by('time').select_related().values('time', 'device__channel', 'device__name', 'data')
-        else:
-            if device_name =='$all':
-                user_db = NumberModel.objects.filter(device__user=request.user, device__channel=device_channel).order_by('time').select_related().values('time', 'device__channel', 'device__name', 'data')
-            else:
-                user_db = NumberModel.objects.filter(device__user=request.user, device__name=device_name, device__channel=device_channel).order_by('time').select_related().values('time', 'device__channel', 'device__name', 'data')
         
         if mode == 'download':
+            if device_channel =='$all':
+                if device_name =='$all':
+                    user_db = NumberModel.objects.filter(device__user=request.user).order_by('time').values('time', 'device__channel', 'device__name', 'data')
+                    device_db = DeviceModel.objects.filter(user=request.user)
+                else:
+                    user_db = NumberModel.objects.filter(device__user=request.user, device__name=device_name).order_by('time').select_related().values('time', 'device__channel', 'device__name', 'data')
+                    device_db = DeviceModel.objects.filter(user=request.user, name=device_name)
+            else:
+                if device_name =='$all':
+                    user_db = NumberModel.objects.filter(device__user=request.user, device__channel=device_channel).order_by('time').select_related().values('time', 'device__channel', 'device__name', 'data')
+                    device_db = DeviceModel.objects.filter(user=request.user, channel=device_channel)
+                else:
+                    user_db = NumberModel.objects.filter(device__user=request.user, device__name=device_name, device__channel=device_channel).order_by('time').select_related().values('time', 'device__channel', 'device__name', 'data')
+                    device_db = DeviceModel.objects.filter(user=request.user, name=device_name, channel=device_channel)
             df = read_frame(user_db)
             now_ts = int(datetime.datetime.now().timestamp())
             response = HttpResponse(content_type='text/csv')
@@ -49,7 +52,22 @@ def consolefunc(request):
             return response
         
         elif mode == 'delete':
+            if device_channel =='$all':
+                if device_name =='$all':
+                    user_db = NumberModel.objects.filter(device__user=request.user).order_by('time')#.values('time', 'device__channel', 'device__name', 'data')
+                    device_db = DeviceModel.objects.filter(user=request.user)
+                else:
+                    user_db = NumberModel.objects.filter(device__user=request.user, device__name=device_name).order_by('time').select_related()#.values('time', 'device__channel', 'device__name', 'data')
+                    device_db = DeviceModel.objects.filter(user=request.user, name=device_name)
+            else:
+                if device_name =='$all':
+                    user_db = NumberModel.objects.filter(device__user=request.user, device__channel=device_channel).order_by('time').select_related()#.values('time', 'device__channel', 'device__name', 'data')
+                    device_db = DeviceModel.objects.filter(user=request.user, channel=device_channel)
+                else:
+                    user_db = NumberModel.objects.filter(device__user=request.user, device__name=device_name, device__channel=device_channel).order_by('time').select_related()#.values('time', 'device__channel', 'device__name', 'data')
+                    device_db = DeviceModel.objects.filter(user=request.user, name=device_name, channel=device_channel)
             user_db.delete()
+            device_db.delete()
             return redirect(request.META['HTTP_REFERER'])
         
         else:

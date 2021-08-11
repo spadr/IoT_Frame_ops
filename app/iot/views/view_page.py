@@ -5,7 +5,7 @@ from django.conf import settings
 
 from .models import DeviceModel, NumberModel, ImageModel, Profile
 
-from .forms import ProfileForm
+from .forms import ProfileForm, ImageForm
 
 import plotly.graph_objects as go
 from plotly.offline import plot
@@ -136,8 +136,11 @@ def graphfunc(request):
         else:
             plot_db = NumberModel.objects.filter(device__user=request.user, device__data_type='number', device__channel=ch, device__name=param_name).order_by('time').reverse().select_related().values('time', 'device__name', 'data')[:LIMIT_QUERY//channels_len]
         df = read_frame(plot_db)
-        df_i = df.set_index('time')
-        df['time'] = df_i.index.tz_convert('Asia/Tokyo')
+        try:
+            df_i = df.set_index('time')
+            df['time'] = df_i.index.tz_convert('Asia/Tokyo')
+        except:
+            pass
         #データの形を整える
         device_name = df['device__name'] 
         device_name_set = device_name.drop_duplicates()
