@@ -17,14 +17,12 @@ RUN mkdir -p $APP_HOME && \
 WORKDIR $APP_HOME
 
 # install dependencies
-COPY --chown=app:app ./Pipfile .
-COPY --chown=app:app ./Pipfile.lock .
+COPY ./requirements_raspi.txt .
 RUN apt update && \
-    apt install -y libpq5 libxml2 && \
+    apt install -y libpq5 libxml2 python3-psycopg2 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*  && \
-    pip install pipenv && \
-    pipenv install --dev --system
+    pip install -r requirements_raspi.txt
 
 # copy entrypoint shell file
 COPY --chown=app:app ./entrypoint.sh $APP_HOME
@@ -37,4 +35,3 @@ USER ${UID}
 
 # run entrypoint shell file
 ENTRYPOINT ["/usr/src/app/entrypoint.sh"]
-
