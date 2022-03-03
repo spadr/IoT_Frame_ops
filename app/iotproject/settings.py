@@ -170,8 +170,8 @@ LIMIT_QUERY = 10000
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
-    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=720),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=1440),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,

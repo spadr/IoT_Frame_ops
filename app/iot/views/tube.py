@@ -32,7 +32,8 @@ class TubeApi(APIView):
             "activity"
         )
 
-        response_body = dict(list(queryset)[0])
+        response_body = {}
+        response_body['tube'] = list(queryset)
         response_body['message'] = ''
         response_body['time'] = timestamp
         return Response(response_body, status=HTTP_200_OK)
