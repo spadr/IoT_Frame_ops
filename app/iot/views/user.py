@@ -19,6 +19,7 @@ class UserApi(APIView):
         if not request.user.is_authenticated:
             return Response(status=HTTP_401_UNAUTHORIZED)
         queryset = User.objects.filter(email=request.user).values(
+            "email",
             "is_active",
             "function_level",
             "alive_monitoring",

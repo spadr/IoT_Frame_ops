@@ -13,4 +13,5 @@ urlpatterns = [
     path('api/tube/', views.tube.TubeApi.as_view(), name='tube'),
     path('api/element/', views.element.ElementApi.as_view(), name='element'),
     path('api/elements/', views.element.ElementsApi.as_view(), name='elements'),
+    path('api/init/', views.init_load.InitApi.as_view(), name='init'),
 ]

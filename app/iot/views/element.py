@@ -35,8 +35,17 @@ class ElementApi(APIView):
                 'time').reverse().select_related().values('tube__channel', 'tube__name', 'tube__token', 'token', 'time', 'element')[:LIMIT_QUERY]
 
         else:
-            tube_count = len(TubeModel.objects.filter(email=request.user, data_type='number').distinct(
+            tube_count = len(TubeModel.objects.filter(email=request.user).distinct(
                 'channel').order_by('channel').values_list('channel', flat=True))
+            if tube_count == 0:
+                response_body = {}
+                response_body['number'] = []
+                response_body['boolean'] = []
+                response_body['char'] = []
+                response_body['message'] = ''
+                response_body['time'] = timestamp
+                return Response(response_body, status=HTTP_200_OK)
+
             number_queryset = NumberModel.objects.filter(tube__email=request.user).order_by(
                 'time').reverse().select_related().values('tube__channel', 'tube__name', 'tube__token', 'token', 'time', 'element')[:LIMIT_QUERY//tube_count]
             boolean_queryset = BooleanModel.objects.filter(tube__email=request.user).order_by(
@@ -59,33 +68,32 @@ class ElementApi(APIView):
             return Response(status=HTTP_401_UNAUTHORIZED)
 
         decoded = json.loads(request.body)
-
         tube_token = str(decoded['token'])
         element_time = int(decoded['time'])
         tube = TubeModel.objects.get(email=request.user, token=tube_token)
-        if tube.data_type == 'number':
-            element_value = float(decoded['value'])
-            NumberModel.objects.create(tube=tube,
-                                       time=timezone.localtime(
-                                           datetime.datetime.fromtimestamp(element_time, UTC)),
-                                       element=element_value
-                                       )
-        elif tube.data_type == 'boolean':
-            element_value = bool(decoded['value'])
-            BooleanModel.objects.create(tube=tube,
-                                        time=timezone.localtime(
-                                            datetime.datetime.fromtimestamp(element_time, UTC)),
-                                        element=element_value
-                                        )
-        elif tube.data_type == 'char':
-            element_value = str(decoded['value'])
-            CharModel.objects.create(tube=tube,
-                                     time=timezone.localtime(
-                                         datetime.datetime.fromtimestamp(element_time, UTC)),
-                                     element=element_value
-                                     )
         try:
-            print(tube)
+            if tube.data_type == 'number':
+                element_value = float(decoded['element'])
+                NumberModel.objects.create(tube=tube,
+                                           time=timezone.localtime(
+                                               datetime.datetime.fromtimestamp(element_time, UTC)),
+                                           element=element_value
+                                           )
+            elif tube.data_type == 'boolean':
+                element_value = bool(decoded['element'])
+                BooleanModel.objects.create(tube=tube,
+                                            time=timezone.localtime(
+                                                datetime.datetime.fromtimestamp(element_time, UTC)),
+                                            element=element_value
+                                            )
+            elif tube.data_type == 'char':
+                element_value = str(decoded['element'])
+                CharModel.objects.create(tube=tube,
+                                         time=timezone.localtime(
+                                             datetime.datetime.fromtimestamp(element_time, UTC)),
+                                         element=element_value
+                                         )
+
         except Exception:
             return Response(status=HTTP_406_NOT_ACCEPTABLE)
         else:
