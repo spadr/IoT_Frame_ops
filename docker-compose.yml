@@ -3,11 +3,13 @@ version: "3.7"
 services:
 
   app:
-    image: ghcr.io/spadr/django_iot_core:main@sha256:27dc78040b11e91b68bcbcdb5878888a025ca741a48f3eed3da1ecc9f3e21180
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     command: gunicorn iotproject.wsgi:application --bind 0.0.0.0:8000 --workers=2
     working_dir: /usr/src/app/
     volumes:
-      #- ./app:/usr/src/app
+      - ./app:/usr/src/app
       - static_volume:/usr/src/app/staticfiles
       - media_volume:/usr/src/app/mediafiles
     expose:
@@ -21,7 +23,7 @@ services:
       - back
   
   db:
-    image: postgres:12.0-alpine
+    image: postgres:14-alpine
     volumes:
       - db_data:/var/lib/postgresql/data/
     env_file:
