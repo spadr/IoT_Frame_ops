@@ -8,7 +8,7 @@ class NumberModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     token = models.UUIDField(default=uuid.uuid4, editable=True)
     time = models.DateTimeField()
-    element = models.FloatField(null=True)
+    value = models.FloatField(null=True)
 
 
 class BooleanModel(models.Model):
@@ -16,7 +16,7 @@ class BooleanModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     token = models.UUIDField(default=uuid.uuid4, editable=True)
     time = models.DateTimeField()
-    element = models.BooleanField(null=True)
+    value = models.BooleanField(null=True)
 
 
 class CharModel(models.Model):
@@ -24,4 +24,4 @@ class CharModel(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     token = models.UUIDField(default=uuid.uuid4, editable=True)
     time = models.DateTimeField()
-    element = models.CharField(max_length=100, null=True)
+    value = models.CharField(max_length=100, null=True)

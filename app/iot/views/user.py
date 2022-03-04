@@ -10,7 +10,7 @@ from django.conf import settings
 import json
 
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_201_CREATED
+from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_201_CREATED, HTTP_409_CONFLICT
 from rest_framework.views import APIView
 
 
@@ -46,7 +46,7 @@ class UserApi(APIView):
             pass
         else:
             response = {'message': '権限がありません。'}
-            return Response(response, status=HTTP_200_OK)
+            return Response(response, status=HTTP_409_CONFLICT)
 
         decoded_body = json.loads(request.body)
         email = decoded_body['email']
@@ -58,7 +58,7 @@ class UserApi(APIView):
         except IntegrityError:
             # ユーザー登録NG
             response = {'message': 'このユーザーはすでに登録されています。'}
-            return Response(response, status=HTTP_200_OK)
+            return Response(response, status=HTTP_409_CONFLICT)
 
         try:
             user.is_active = False
@@ -66,7 +66,7 @@ class UserApi(APIView):
 
         except Exception:
             response = {'message': '登録できません。'}
-            return Response(response, status=HTTP_200_OK)
+            return Response(response, status=HTTP_409_CONFLICT)
 
         # 認証メールの作成
         try:
@@ -87,7 +87,7 @@ class UserApi(APIView):
 
         except Exception:
             response = {'message': 'メール関係の変数が不正です。'}
-            return Response(response, status=HTTP_200_OK)
+            return Response(response, status=HTTP_409_CONFLICT)
 
         # 認証メールの作成
         try:
@@ -95,7 +95,7 @@ class UserApi(APIView):
 
         except Exception:
             response = {'message': 'ユーザーの登録は完了しましたが、認証メールの送信に失敗しました。'}
-            return Response(response, status=HTTP_200_OK)
+            return Response(response, status=HTTP_201_CREATED)
 
         response = {
             'message': '登録したメールアドレスへ認証メールを送信しました。URLをクリックして、アカウントを有効化してください。'}

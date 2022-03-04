@@ -14,4 +14,5 @@ urlpatterns = [
     path('api/element/', views.element.ElementApi.as_view(), name='element'),
     path('api/elements/', views.element.ElementsApi.as_view(), name='elements'),
     path('api/init/', views.init_load.InitApi.as_view(), name='init'),
+    path('api/time/', views.time.UnixtimeApi.as_view(), name='time'),
 ]
