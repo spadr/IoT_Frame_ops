@@ -72,8 +72,11 @@ class ElementApi(APIView):
         decoded = json.loads(request.body)
         tube_token = str(decoded['token'])
         element_time = int(decoded['time'])
-        tube = TubeModel.objects.get(email=request.user, token=tube_token)
         try:
+            tube = TubeModel.objects.get(email=request.user, token=tube_token)
+            tube.activity = timezone.localtime(
+                datetime.datetime.fromtimestamp(timestamp, UTC))
+            tube.save()
             if tube.data_type == 'number':
                 element_value = float(decoded['value'])
                 NumberModel.objects.create(tube=tube,
@@ -222,9 +225,13 @@ class ElementsApi(APIView):
         for packet in decoded['content']:
             tube_token = str(packet['token'])
             element_time = int(packet['time'])
-            tube = TubeModel.objects.get(
-                email=request.user, token=tube_token)
+
             try:
+                tube = TubeModel.objects.get(
+                    email=request.user, token=tube_token)
+                tube.activity = timezone.localtime(
+                    datetime.datetime.fromtimestamp(timestamp, UTC))
+                tube.save()
                 if tube.data_type == 'number':
                     element_value = float(packet['value'])
                     NumberModel.objects.create(tube=tube,

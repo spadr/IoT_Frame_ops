@@ -105,7 +105,27 @@ class UserApi(APIView):
     def put(self, request):
         if not request.user.is_authenticated:
             return Response(status=HTTP_401_UNAUTHORIZED)
-        pass
+
+        user = User.objects.get(email=request.user)
+        decoded_body = json.loads(request.body)
+        try:
+            user.alive_monitoring = bool(decoded_body["alive_monitoring"])
+            user.send_message_to_email = bool(
+                decoded_body["send_message_to_email"])
+            user.line_token = str(decoded_body["line_token"])
+            user.send_message_to_line = bool(
+                decoded_body["send_message_to_line"])
+            user.slack_token = str(decoded_body["slack_token"])
+            user.slack_channel = str(decoded_body["slack_channel"])
+            user.send_message_to_slack = bool(
+                decoded_body["send_message_to_slack"])
+            user.save()
+        except Exception:
+            response = {'message': '変更失敗'}
+            return Response(response, status=HTTP_409_CONFLICT)
+        else:
+            response = {'message': '変更完了'}
+            return Response(response, status=HTTP_201_CREATED)
 
     @transaction.atomic
     def delete(self, request):
