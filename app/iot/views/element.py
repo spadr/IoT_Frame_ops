@@ -5,7 +5,7 @@ import uuid
 from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
-from iot.models import BooleanModel, CharModel, FloatModel, IntModel, TubeModel
+from iot.models import BooleanModel, CharModel, FloatModel, ImageModel, IntModel, TubeModel
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED, HTTP_409_CONFLICT
 from rest_framework.views import APIView

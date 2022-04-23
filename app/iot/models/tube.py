@@ -1,6 +1,7 @@
+import uuid
+
 from django.db import models
 from iot.models.custom_user import User
-import uuid
 
 
 class TubeModel(models.Model):
@@ -12,6 +13,10 @@ class TubeModel(models.Model):
     is_variable = models.BooleanField(default=False)
     data_type = models.CharField(max_length=100)
     monitoring = models.BooleanField(default=False)
-    interval = models.IntegerField(null=True)
+    interval = models.IntegerField(default=10)
     is_active = models.BooleanField(default=True)
     activity = models.DateTimeField()
+    compare_upper_threshold = models.BooleanField(default=False)
+    compare_lower_threshold = models.BooleanField(default=False)
+    upper_threshold = models.FloatField(default=100)
+    lower_threshold = models.FloatField(default=0)
