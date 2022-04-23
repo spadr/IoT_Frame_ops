@@ -101,7 +101,6 @@ class UserApi(APIView):
             'message': '登録したメールアドレスへ認証メールを送信しました。URLをクリックして、アカウントを有効化してください。'}
         return Response(response, status=HTTP_201_CREATED)
 
-    @transaction.atomic
     def put(self, request):
         if not request.user.is_authenticated:
             return Response(status=HTTP_401_UNAUTHORIZED)
