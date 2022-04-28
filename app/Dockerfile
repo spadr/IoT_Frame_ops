@@ -1,5 +1,5 @@
 # pull official base image
-FROM python:3.8-buster
+FROM python:3.10-buster
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -21,7 +21,7 @@ COPY --chown=app:app ./Pipfile .
 COPY --chown=app:app ./Pipfile.lock .
 RUN apt update && \
     apt install -y libpq5 libxml2 nano && \
-    apt-get clean && \
+    apt clean && \
     rm -rf /var/lib/apt/lists/*  && \
     pip install pipenv && \
     pipenv install --dev --system
