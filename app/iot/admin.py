@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import ugettext_lazy as _
 
-from iot.models import BooleanModel, CharModel, FloatModel, ImageModel, IntModel, TubeModel, User
+from iot.models import BooleanModel, CharModel, FloatModel, IntModel, TubeModel, User
 
 # Register your models here.
 
@@ -12,7 +12,6 @@ admin.site.register(FloatModel)
 admin.site.register(IntModel)
 admin.site.register(BooleanModel)
 admin.site.register(CharModel)
-admin.site.register(ImageModel)
 
 
 class MyUserChangeForm(UserChangeForm):

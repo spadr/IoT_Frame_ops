@@ -45,6 +45,9 @@ $ sudo docker compose up -d --build
 #イメージ、コンテナ、ボリューム、ネットワークを削除
 $ sudo docker compose down
 
+#すべてを削除
+$ sudo docker compose down --rmi all --volumes --remove-orphans
+
 #各コンテナを停止
 $ sudo docker compose stop
 
